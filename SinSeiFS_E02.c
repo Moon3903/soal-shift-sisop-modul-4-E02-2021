@@ -168,10 +168,11 @@ static int xmp_symlink(const char *from, const char *to)
 static int xmp_rename(const char *from, const char *to)
 {
 	int res;
-    char ffrom[100]={0};
+    char ffrom[100]={0}, fto[100]={0};
     combinePath(from,dirpath,ffrom);
+	combinePath(to,dirpath,fto);
 
-	res = rename(ffrom, to);
+	res = rename(ffrom, fto);
 	if (res == -1)
 		return -errno;
 
