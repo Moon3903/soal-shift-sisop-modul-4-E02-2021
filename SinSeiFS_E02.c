@@ -7,50 +7,54 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <stdlib.h>
  
-char dirpath[100] = "/home/moon/Downloads";
+char dirpath[100] = "/home/ryan/Downloads";
  
 
 int cekDua(char *fpath){
 	
-	FILE* file = fopen("/home/moon/logDua.log", "r");
-	char line[1000], path, type;
+	FILE* file = fopen("/home/ryan/logDua.log", "r");
+	char line[1000];
 	char *token,*jenis;
 	while (fgets(line, sizeof(line), file)) {
 		token = strtok(line, " ");
 		jenis = token;
-		// printf("FTOK %s\n",token);
+
 		token = strtok(NULL, " ");
 		token = strtok(NULL, " ");
 		token = strtok(NULL, " ");
 		token[strlen(token)-1] = 0;
-        // printf("Dir %s\n", token);
-		// printf("Banding %s /\\ %s\n",token,fpath);
+
 		if(!strncmp(token,fpath,strlen(token))){
-			printf("%s\n",jenis);
 			if(!strncmp("RENAME",jenis,6)){
-				printf("MA RENAME\n");
 				fclose(file);
 				return 3;
 			}
 			if(!strncmp("MKDIR",jenis,5)){
-				printf("SS MKDir\n");
 				fclose(file);
 				return 4;
 			}
 		}
     }
 	fclose(file);
+	return -1;
 }
 
 int cekEnkrip(char *fpath){
-	char *token = strtok(fpath,"/");
+	char temp[10000];
+	strcpy(temp,fpath);
+
+	char *token = strtok(temp,"/");
 	while(token != NULL){
 		if(strncmp("AtoZ_",token,5) == 0){
 			return 1;
 		}
 		if(!strncmp("RX_",token,3)){
 			return 2;
+		}
+		if(!strncmp("A_is_a_",token,7)){
+			return 3;
 		}
 		token = strtok(NULL,"/");
 	}
@@ -64,38 +68,6 @@ int tipe(const char* path) {
     return S_ISDIR(statbuf.st_mode);
 }
  
-// char *get_ext(char* filename) {
- 
-// 	if(strrchr(filename, '/')!=NULL)
-// 	    filename = strrchr(filename, '/');
-// 	if(strchr(filename, '.')==NULL){
-// 		filename[0]=0;
-// 		return filename;
-// 	}
-//     filename = strchr(filename, '.');
- 
-//     return filename;
-// }
- 
-// char *get_name(char *filename){
-//     char ok[1000];
-//     strcpy(ok,filename);
- 
-// 	if(strrchr(ok, '/')!=NULL)
-// 	    strcpy(ok,strrchr(ok, '/'));
-// 	strcpy(filename,ok);
-// 	if(strchr(ok, '.')!=NULL){
-// 		strcpy(ok,strchr(ok, '.'));
-// 	}
-// 	else{
-// 		ok[0]=0;
-// 	}
- 
-//     filename[strlen(filename)-strlen(ok)] = 0;
- 
-//     return filename;
-// }
- 
 char *get_path(char *filename){
 	char ok[1000];
  
@@ -105,21 +77,6 @@ char *get_path(char *filename){
  
 	return filename;
 }
- 
-// char *enkripsi_atbash(char *filename){
-// 	for(int i = 0; i < strlen(filename); i++){
- 
-// 		if(filename[i] >= 'a' && filename[i] <= 'z'){
-// 			filename[i] = 'z' + 'a' - filename[i];
-// 		}	
-// 		if(filename[i] >= 'A' && filename[i] <= 'Z'){
-// 			filename[i] = 'Z' + 'A' - filename[i];
-// 		}
- 
-// 	}
- 
-// 	return filename;
-// }
 
 char *special(char *filename){
     int length_extension = 0;
@@ -143,18 +100,16 @@ char *special(char *filename){
 }
  
 char *dec_special(char *filename){
-    int length_decimal = 0;
+    int length_decimal = 0,angka = 0;
     char *decimal = strrchr(filename,'.');
     if(decimal){
         length_decimal = strlen(decimal);
+		angka = atoi(decimal+1);
     }
-    int angka = atoi(decimal+1);
-    // printf("panjang:%d ANGKA:%d\n",length_decimal,angka);
  
     char temp[1000] = {0};
     strncpy(temp,filename,strlen(filename)-length_decimal);
     temp[strlen(filename)-length_decimal]='\0';
-    // printf("NOW:%s\n",temp);
  
     int length_extension = 0;
     char *extension = strrchr(temp,'.');
@@ -164,7 +119,6 @@ char *dec_special(char *filename){
  
     int ctr = 0;
     for(int i = strlen(temp) - length_extension - 1; i >= 0 ; i--){
-        // printf("%c %d %d\n", temp[i], 1 << ctr, (1 << ctr) & angka);
         if((1 << ctr) & angka){
             temp[i] = 'A' + temp[i] - 'a';
         }
@@ -190,20 +144,6 @@ char *enkripsi_atbash(char *filename){
 		}
  
 	}
-
-	// char *token = strtok(filename,".");
-	// char temp[10000];
-	// strcpy(temp,token);
-	// enkripsi_atbash(temp);
-
-	// //jika ada ekstensi
-	// token = strtok(NULL,".");
-	// if(token){
-	// 	strcat(temp,".");
-	// 	strcat(temp,token);
-	// }
-	
-	// strcpy(filename,temp);
 	return filename;
 }
 
@@ -260,7 +200,7 @@ char *vigenere(char *msg){
 		length_extension = strlen(extension);
 	}
  
-    char newKey[msgLen], encryptedMsg[msgLen], decryptedMsg[msgLen];
+    char newKey[msgLen], encryptedMsg[msgLen];
  
     //generating new key
     for(i = 0, j = 0; i < msgLen; ++i, ++j){
@@ -320,70 +260,7 @@ char *rot13(char *filename){
 	return filename;
 }
 
-// char *enc_one(const char *path,char *fpath,char *ret){
- 
-// 	if(!strncmp("/AtoZ_",path,6)){
-//         char *check;
-//         check = strrchr(path,'/');
-//         if(strlen(check) != strlen(path)){
-//             char tmp[1000],name[1000],n_name[1000],ext[1000];
- 
-//             strcpy(tmp,path);
-//             strcpy(name,get_name(tmp));
- 
-// 			strcpy(tmp,fpath);
-//             strcpy(n_name,get_path(tmp));
- 
-//             strcat(n_name,enkripsi_atbash(name));
- 
-// 			strcpy(tmp,path);
-// 			strcpy(ext,get_ext(tmp));
- 
-// 			strcat(n_name,ext);
- 
-//             rename(fpath,n_name);
-// 			ret = n_name;
- 
-// 			return ret;
-//         }
-//     }
-// 	else{
-// 		char hade[10];
-// 		hade[0]=0;
-// 		ret = hade;
-// 		return ret;
-// 	}
-// 	return ret;
-// }
-
-
-char *proses_ext(const char *path,char *ret){
- 
-	char ok[1000];
-	strcpy(ok,strrchr(path,'/')+1);
- 
-	if(strncmp("AtoZ_",ok,5)){
-        char *check;
-        check = strrchr(path,'/');
-        if(strlen(check) != strlen(path)){
-            char tmp[1000],name[1000],n_name[1000],ext[1000];
- 
-			strcpy(n_name,enkripsi_atbash(tmp));
- 
-			ret = n_name;
- 
-			return ret;
-        }
-    }
-	else{
-		ret = path;
-	}
-	return ret;
-}
- 
 void rekursi(char fpath[1000],int jenis){
- 
-	// printf("proses %s\n",fpath);
 	if(!strlen(fpath)){
 		return;
 	}
@@ -401,15 +278,9 @@ void rekursi(char fpath[1000],int jenis){
             continue;
         }
  
-		char n_name[100],tmp[100],path[100],name[100],ext[100];
-		// printf("n\n");
+		char n_name[100],tmp[100],path[100];
 		strcpy(tmp,dir->d_name);
-		// strcpy(name,get_name(tmp));
-		// // printf("h\n");
-		// strcpy(tmp,dir->d_name);
-		// strcpy(ext,get_ext(tmp));
- 
-		// printf("%s %s %s",fpath,name,ext);
+
 		if(jenis == 1)
 			sprintf(n_name,"%s/%s",fpath,enkripsi_atbash(tmp));
 		else if(jenis == 2)
@@ -425,12 +296,8 @@ void rekursi(char fpath[1000],int jenis){
  
 		rename(path,n_name);
  
-		// printf("renamed %s\n",n_name);
- 
         if(tipe(n_name)==1){
-			// printf("masuk %s\n",n_name);
             rekursi(n_name,jenis);
-            // printf("MASUKK %s\n",lewat);
             continue;
         }
  
@@ -439,66 +306,28 @@ void rekursi(char fpath[1000],int jenis){
 }
  
  
- 
-// char *proses(char *filename){
-// 	char *ok;
-//     ok = strchr(filename,'/') + 1;
- 
-//     while (ok != NULL){
-//         // printf("%s\n",ok);
- 
-// 		if(!strncmp(ok,"AtoZ_",5)){
-// 			printf("OK=%s",ok);
-// 			strcpy(filename,proses_ext(filename,""));
-// 			break;
-// 		}
- 
-//         if(strchr(ok,'/') == NULL)
-//             break;
- 
-//         ok = strchr(ok,'/') + 1;
-//     }
-// 	return filename;
-// }
-
 char *proses(char *filename){
-	// printf("TES\n");
 	char *ok;
     ok = strchr(filename,'/') + 1;
  
-    while (ok != NULL){
-        // printf("OKE %s\n",ok);
- 
-		if(!strncmp(ok,"AtoZ_",5)){
-			// printf("OK NOW=%s\n",ok);
-			
+    while (ok != NULL){ 
+		if(!strncmp(ok,"AtoZ_",5)){		
 			if(strchr(ok,'/')){
 				ok = strchr(ok,'/') + 1;
 				int ind = ok - filename;
-				// printf("OK=%s %d\n",ok, ok-filename);
 				enkripsi_atbash(ok);
 				for(int i = 0; i < strlen(ok); i++){
 					filename[ind + i] = ok[i]; 
 				}
 				filename[ind+strlen(ok)] = '\0';
-				
-				// strcpy(filename,proses_ext(filename,""));
 				break;
 			}
 		}
 
 		if(!strncmp(ok,"RX_",3)){
-			// printf("Masuk %s\n",ok);
-			char *hade = ok;
 			if(strchr(ok,'/')){
 				ok = strchr(ok,'/') + 1;
 				int ind = ok - filename;
-				// printf("OK=%s %d\n",ok, ok-filename);
-				char pass[1000];
-				// strcpy(pass,dirpath);
-				// strcat(pass,"/");
-				// strcat(pass,hade);
-				// printf("pass %s\n",pass);
 				int mana = cekDua(filename);
 
 				if(mana == 3){
@@ -507,17 +336,30 @@ char *proses(char *filename){
 				if(mana == 4){
 					rot13(ok);
 				}
-				// printf("PROSES %s\n",ok);
+
 				for(int i = 0; i < strlen(ok); i++){
 					filename[ind + i] = ok[i]; 
 				}
 				filename[ind+strlen(ok)] = '\0';
-				
-				// strcpy(filename,proses_ext(filename,""));
 				break;
 			}
 		}
- 
+
+
+		if(!strncmp(ok,"A_is_a_",7)){
+			if(strchr(ok,'/')){
+				ok = strchr(ok,'/') + 1;
+				int ind = ok - filename;
+
+				dec_special(ok);
+				for(int i = 0; i < strlen(ok); i++){
+					filename[ind + i] = ok[i]; 
+				}
+				filename[ind+strlen(ok)] = '\0';
+
+				break;
+			}
+		}
         if(strchr(ok,'/') == NULL)
             break;
  
@@ -528,14 +370,14 @@ char *proses(char *filename){
 
 void logSatu(char *from, char *to){
 	FILE *fileout;
-	fileout = fopen("/home/moon/inilog.log","a");
+	fileout = fopen("/home/ryan/inilog.log","a");
 	fprintf(fileout, "%s -> %s\n",from,to);
 	fclose(fileout);
 }
 
 void logDua(char *from, char *to,int tipe){
 	FILE *fileout;
-	fileout = fopen("/home/moon/logDua.log","a");
+	fileout = fopen("/home/ryan/logDua.log","a");
 
 	if(tipe == 1)
 		fprintf(fileout, "MKDIR: %s -> %s\n",from,to);
@@ -552,7 +394,7 @@ void appendLog(char *level, char *command, char *desc){
 	strftime(time_now,100,"%d%m%Y-%H:%M:%S",tm);
  
 	FILE *fileout;
-	fileout = fopen("/home/moon/SinSeiFS.log","a");
+	fileout = fopen("/home/ryan/SinSeiFS.log","a");
 	fprintf(fileout, "%s::%s:%s::%s\n",level,time_now,command,desc);
 	fclose(fileout);
 }
@@ -573,7 +415,6 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
     combinePath(path,dirpath,fpath);
  
 	res = lstat(proses(fpath), stbuf);
-	// printf("ATTR %s\n",fpath);
 	if (res == -1)
 		return -errno;
  
@@ -588,7 +429,6 @@ static int xmp_access(const char *path, int mask)
  
  
 	res = access(proses(fpath), mask);
-	// printf("aces %s\n",fpath);
 	if (res == -1)
 		return -errno;
  
@@ -615,8 +455,6 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 {
     char fpath[1000]={0};
     combinePath(path,dirpath,fpath);
-	char hehe[1000];
-	strcpy(hehe,fpath);
  
 	DIR *dp;
 	struct dirent *de;
@@ -625,15 +463,13 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	(void) fi;
  
 	dp = opendir(proses(fpath));
-	// printf("PATH %s\n",fpath);
+
 	if (dp == NULL)
 		return -errno;
  
 	int flag = cekEnkrip(fpath);
-	printf("flag %d\n",flag);
  
 	while ((de = readdir(dp)) != NULL) {
-		// printf("MASUK %s\n",de->d_name);
 		struct stat st;
 		memset(&st, 0, sizeof(st));
 		st.st_ino = de->d_ino;
@@ -641,7 +477,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 		char temp[10000] = {0};
 		strcpy(temp,de->d_name);
-		// printf("FLAG %d\n",flag);
+
 		if(flag==1){
 			if(de->d_type == DT_REG){
 				enkripsi_atbash(temp);
@@ -650,34 +486,35 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			}
 		}
 		if(flag==2){
-			printf("READ %s\n",hehe);
 			if(de->d_type == DT_REG){
 				
-				int mana = cekDua(hehe);
+				int mana = cekDua(fpath);
 				if(mana == 3){
 					vigenere(temp);
-					printf("vigene\n");
 				}
 				if(mana == 4){
-					printf("ROT\n");
 					rot13(temp);
 				}
-				// printf("DIR %s\n",temp);
+
 			}else if(de->d_type == DT_DIR && strcmp(temp,".") != 0 && strcmp(temp,"..") != 0){
-				int mana = cekDua(hehe);
+				int mana = cekDua(fpath);
 				if(mana == 3){
 					vigenere(temp);
-					printf("vigene\n");
 				}
 				if(mana == 4){
 					rot13(temp);
-					printf("ROT\n");
 				}
-				// printf("DIR %s\n",temp);
+
 
 			}
+		}else if(flag == 3){
+			if(de->d_type == DT_REG){
+				special(temp);
+			}else if(de->d_type == DT_DIR && strcmp(temp,".") != 0 && strcmp(temp,"..") != 0){
+				special(temp);
+			}
 		}
-		// printf("temp = %s \n",temp);
+
 		if (filler(buf, temp, &st, 0))
 			break;
 	}
@@ -693,9 +530,6 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
     combinePath(path,dirpath,fpath);
 	proses(fpath);
  
- 
-	/* On Linux this could just be 'mknod(path, mode, rdev)' but this
-	   is more portable */
 	if (S_ISREG(mode)) {
 		res = open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode);
 		if (res >= 0)
@@ -725,16 +559,13 @@ static int xmp_mkdir(const char *path, mode_t mode)
 	appendLog("INFO","MKDIR",desc);
  
 	char *tmp = strrchr(fpath,'/')+1;
-	// printf("log %s\n",tmp);
+
 	if(!strncmp(tmp,"AtoZ_",5)){
 		logSatu(dirpath,fpath);
 	}
 	if(!strncmp(tmp,"RX_",3)){
 		logDua(dirpath,fpath,1);
 	}
-    // rekursi(tmp);
- 
- 
 	return 0;
 }
  
@@ -799,7 +630,7 @@ static int xmp_rename(const char *from, const char *to)
 	appendLog("INFO","RENAME",desc);
  
 	if(!strncmp("/AtoZ_",from,6) && !strncmp("/AtoZ_",to,6)){
-		// return 0;
+
 	}
  
 	else if(!strncmp("/AtoZ_",from,6) || !strncmp("/AtoZ_",to,6)){
@@ -810,7 +641,7 @@ static int xmp_rename(const char *from, const char *to)
 	}
 	
 	if(!strncmp("/RX_",from,4) && !strncmp("/RX_",to,4)){
-		// return 0;
+
 	}
 
 	else if(!strncmp("/RX_",to,4)){
@@ -946,10 +777,7 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 	char desc[1000] = {0};
 	strcpy(desc,path);
 	appendLog("INFO","WRITE",desc);
-	
- 
-	// printf("write\n");
- 
+
 	res = pwrite(fd, buf, size, offset);
 	if (res == -1)
 		res = -errno;
@@ -986,16 +814,11 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi)
 	appendLog("INFO","CREATE",desc);
     close(res);
  
-	// enc_one(path,fpath);
- 
     return 0;
 }
  
 static int xmp_release(const char *path, struct fuse_file_info *fi)
 {
-	/* Just a stub.	 This method is optional and can safely be left
-	   unimplemented */
- 
 	(void) path;
 	(void) fi;
 	return 0;
@@ -1004,9 +827,6 @@ static int xmp_release(const char *path, struct fuse_file_info *fi)
 static int xmp_fsync(const char *path, int isdatasync,
 		     struct fuse_file_info *fi)
 {
-	/* Just a stub.	 This method is optional and can safely be left
-	   unimplemented */
- 
 	(void) path;
 	(void) isdatasync;
 	(void) fi;
