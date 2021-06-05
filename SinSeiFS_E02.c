@@ -68,16 +68,6 @@ int tipe(const char* path) {
     return S_ISDIR(statbuf.st_mode);
 }
  
-char *get_path(char *filename){
-	char ok[1000];
- 
-	strcpy(ok,strrchr(filename, '/'));
- 
-	filename[strlen(filename)-strlen(ok)] = 0;
- 
-	return filename;
-}
-
 char *special(char *filename){
     int length_extension = 0;
     char *extension = strrchr(filename,'.');
@@ -417,6 +407,10 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 	res = lstat(proses(fpath), stbuf);
 	if (res == -1)
 		return -errno;
+	
+	char desc[1000] = {0};
+	strcpy(desc,fpath);
+	appendLog("INFO","GETATTR",desc);
  
 	return 0;
 }
@@ -446,6 +440,10 @@ static int xmp_readlink(const char *path, char *buf, size_t size)
 		return -errno;
  
 	buf[res] = '\0';
+
+	char desc[1000] = {0};
+	strcpy(desc,fpath);
+	appendLog("INFO","READLINK",desc);
 	return 0;
 }
  
@@ -518,7 +516,9 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		if (filler(buf, temp, &st, 0))
 			break;
 	}
- 
+	char desc[1000] = {0};
+	sprintf(desc,"%s",fpath);
+	appendLog("INFO","READDIR",desc);
 	closedir(dp);
 	return 0;
 }
@@ -540,7 +540,9 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 		res = mknod(fpath, mode, rdev);
 	if (res == -1)
 		return -errno;
- 
+	char desc[1000] = {0};
+	strcpy(desc,fpath);
+	appendLog("INFO","MKNOD",desc);
 	return 0;
 }
  
@@ -553,11 +555,7 @@ static int xmp_mkdir(const char *path, mode_t mode)
 	res = mkdir(proses(fpath), mode);
 	if (res == -1)
 		return -errno;
- 
-	char desc[1000] = {0};
-	strcpy(desc,fpath);
-	appendLog("INFO","MKDIR",desc);
- 
+  
 	char *tmp = strrchr(fpath,'/')+1;
 
 	if(!strncmp(tmp,"AtoZ_",5)){
@@ -566,6 +564,9 @@ static int xmp_mkdir(const char *path, mode_t mode)
 	if(!strncmp(tmp,"RX_",3)){
 		logDua(dirpath,fpath,1);
 	}
+	char desc[1000] = {0};
+	strcpy(desc,fpath);
+	appendLog("INFO","MKDIR",desc);
 	return 0;
 }
  
@@ -677,6 +678,10 @@ static int xmp_chmod(const char *path, mode_t mode)
 	res = chmod(proses(fpath), mode);
 	if (res == -1)
 		return -errno;
+
+	char desc[1000] = {0};
+	sprintf(desc,"%s",fpath);
+	appendLog("INFO","CHMOD",desc);
  
 	return 0;
 }
@@ -690,7 +695,10 @@ static int xmp_chown(const char *path, uid_t uid, gid_t gid)
 	res = lchown(proses(fpath), uid, gid);
 	if (res == -1)
 		return -errno;
- 
+	
+	char desc[1000] = {0};
+	sprintf(desc,"%s",fpath);
+	appendLog("INFO","CHOWN",desc);
 	return 0;
 }
  
@@ -703,7 +711,10 @@ static int xmp_truncate(const char *path, off_t size)
 	res = truncate(proses(fpath), size);
 	if (res == -1)
 		return -errno;
- 
+
+	char desc[1000] = {0};
+	sprintf(desc,"%s",fpath);
+	appendLog("INFO","TRUNCATE",desc);
 	return 0;
 }
  
@@ -755,6 +766,10 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 	res = pread(fd, buf, size, offset);
 	if (res == -1)
 		res = -errno;
+
+	char desc[1000] = {0};
+	sprintf(desc,"%s",fpath);
+	appendLog("INFO","READ",desc);
  
 	close(fd);
 	return res;
@@ -774,16 +789,17 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 	if (fd == -1)
 		return -errno;
  
-	char desc[1000] = {0};
-	strcpy(desc,path);
-	appendLog("INFO","WRITE",desc);
 
 	res = pwrite(fd, buf, size, offset);
 	if (res == -1)
 		res = -errno;
- 
-	return res;
+	
+	char desc[1000] = {0};
+	strcpy(desc,path);
+	appendLog("INFO","WRITE",desc);
+	
 	close(fd);
+	return res;
 }
  
 static int xmp_statfs(const char *path, struct statvfs *stbuf)
