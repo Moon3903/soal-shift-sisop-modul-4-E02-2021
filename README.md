@@ -19,10 +19,11 @@
 ## Penjelasan
 a) Pembuatan folder dengan awalan "A_is_a_" merupakan direktori spesial</br>
 b) Jika rename folder dengan awalan "A_is_a_" maka menjadi direktori spesial</br>
-c) Direktori spesial akan mengembalikan encoding direktori "AtoZ_" dan "RX_" tetapi masing-masing</br>
-d) Pada direktori spesial, nama file menjadi lowercase dan diberi tambahan ekstensi berupa desimal dari biner perbedaanya</br> 
+c) Jika awalan "A_is_a_" dihapus maka menjadi direktori normal</br>
+d) Direktori spesial akan mengembalikan encoding direktori "AtoZ_" dan "RX_" tetapi masing-masing aturan tetap berjalan di subdirektori</br>
+e) Pada direktori spesial, nama file menjadi lowercase dan diberi tambahan ekstensi berupa desimal dari biner perbedaanya</br> 
 ## Penyelesaian
-### Soal 3a), 3b), dan 3d)
+### Soal 3a), 3b), 3c), dan 3e)
 ```c
 char *special(char *filename){
     int length_extension = 0;
