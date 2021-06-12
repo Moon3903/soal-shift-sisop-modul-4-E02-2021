@@ -158,7 +158,9 @@ void logSatu(char *from, char *to){
 }
 ```
 digunakan untuk menambahkan rename atau mkdir kedalam log, log di panggil saat rename atau mkdir dengan awalan AtoZ_.
-
+### Hasil
+![Nomor_1](https://user-images.githubusercontent.com/68326540/121769514-37fc2c80-cb8e-11eb-94ed-fa7605f51efd.png)
+![log_Nomor_1](https://user-images.githubusercontent.com/68326540/121769671-2b2c0880-cb8f-11eb-8d03-18b271661ecd.png)
 # Soal 2
 ## Penjelasan
 a) Jika sebuah direktori dibuat dengan awalan “RX_[Nama]” maka direktori tersebut akan menjadi direktori terencode dengan algoritma tambahan ROT13 (Atbash + ROT13).</br>
@@ -338,6 +340,11 @@ menambahkan mkdir dan rename kedalam log
 void rekursi(char fpath[1000],int jenis){}
 ```
 juga akan menggunakan rekursi untuk rename nya.
+### Hasil
+![Nomor_2](https://user-images.githubusercontent.com/68326540/121769870-36cbff00-cb90-11eb-8a3c-7905ec45eb41.png)
+![log_Nomor_2](https://user-images.githubusercontent.com/68326540/121769882-43e8ee00-cb90-11eb-999a-d1639e17077b.png)
+
+
 # Soal 3
 ## Penjelasan
 a) Pembuatan folder dengan awalan "A_is_a_" merupakan direktori spesial</br>
