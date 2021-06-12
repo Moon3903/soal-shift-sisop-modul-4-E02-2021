@@ -111,7 +111,8 @@ char *proses(char *filename){
 ```
 Potongan fungsi di atas digunakan untuk melakukan pengecekan awalan sebuah folder "A_is_a_". Fungsi ini memiliki peranan penting dalam melakukan encode direktori karena semua ``fpath`` akan dikirimkan ke fungsi tersebut untuk diproses
 
-
+### Hasil
+![Nomor_3](https://user-images.githubusercontent.com/68326540/121760010-b6d37400-cb52-11eb-966d-8201d9203f65.png)
 # Soal 4
 ## Penjelasan
 a) Membuat log untuk setiap pemanggilan system call. Log disimpan di ``/home/[user]/SinSeiFS.log``</br>
@@ -136,4 +137,8 @@ void appendLog(char *level, char *command, char *desc){
 ```
 Pertama ambil waktu saat ini dengan ``time_t``. Menggunakan ``fopen`` dengan parameter "a" untuk menambahkan (append) log ke file tujuan
 Untuk xmp_rmdir dan xmp_unlink akan memanggil fungsi appendLog dengan mengirim level = "WARNING", sedangkan lainnya akan mengirimkan argumen level = "INFO"
+### Hasil
+![Nomor_4](https://user-images.githubusercontent.com/68326540/121760245-db7c1b80-cb53-11eb-91d1-f361a9d79f61.png)
+
 # Kendala
+- Susah melakukan debugging jika ada error.
